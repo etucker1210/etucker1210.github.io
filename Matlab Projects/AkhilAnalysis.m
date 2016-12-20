@@ -30,11 +30,11 @@ if exist('C:\Users\Tonia\Box Sync\Liz Basilisk Data') == 7  % home computer
     calpath                 =   'C:\Users\Tonia\Dropbox\_T private files\Students\Liz\data\';
     newdir                  =   'C:\Users\Tonia\Box Sync\Liz Basilisk Data';
 elseif exist('C:\Users\Tonia Hsieh\Box Sync\Liz Basilisk Data') == 7    % office computer
-    ffname                  =   'Footfall data'; %'BasiliskFootfalls.xlsx';
-    ffpath                  =   'C:\Users\Tonia Hsieh\Box Sync\Liz Basilisk Data';
+    ffname                  =   'ForceFootFalls'; %'BasiliskFootfalls.xlsx';
+    ffpath                  =   'C:\Users\Liz\Desktop\Liz Basilisk Data';
     calfname                =   'fpCalMatrix.csv';
-    calpath                 =   'C:\Users\Tonia Hsieh\Documents\My Dropbox\_T private files\Students\Liz\';
-    newdir                  =   'C:\Users\Tonia Hsieh\Box Sync\Liz Basilisk Data';
+    calpath                 =   'C:\Users\Liz\Desktop\Liz Basilisk Data';
+    newdir                  =   'C:\Users\Liz\Desktop\Liz Basilisk Data\Data';
 elseif exist('/Users/ElizabethTucker/Desktop/Liz Basilisk Data') == 7    % laptop
     ffname                  =   'Footfalldataforcedrop'; %'BasiliskFootfalls.xlsx';
     ffpath                  =   '/Users/ElizabethTucker/Desktop/Liz Basilisk Data/';

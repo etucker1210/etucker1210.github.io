@@ -61,9 +61,12 @@ RHipskb = cell(1,numTrials);
 RUpperLegskb = cell(1,numTrials);
 RLowerLegskb = cell(1,numTrials);
 UpperBackskb = cell(1,numTrials);
-
+Neckskb = cell(1,numTrials);
+Headskb = cell(1,numTrials);
+UpperBackOtherskb = cell(1,numTrials);
+LowerBackOtherskb = cell(1,numTrials);
 data.skbfname = cell(1,numTrials);
-for i = 1:numTrials  
+for i = 1:numTrials
     fprintf('.');
     fname               =   datafiles{i};
     if isempty(strfind(fname,'.'))      % confirms that file extension not included
@@ -126,9 +129,23 @@ RLowerLegskb{i} = A.data(f(7):f(7)+g,5:7);
 UpperBackskb{i} = A.data(f(8):f(8)+g,5:7);
   b = find(UpperBackskb{i}(:,1) == [9999999]);
     UpperBackskb{i}(b,:) = NaN;
-
+Neckskb {i} = A.data(f(9):f(9)+g,5:7);
+  b = find(Neckskb{i}(:,1) == [9999999]);
+    Neckskb{i}(b,:) = NaN;
+    clear b
+Headskb{i} = A.data(f(10):f(10)+g,5:7);
+  b = find(Headskb{i}(:,1) == [9999999]);
+    Headskb{i}(b,:) = NaN;
+    clear b
+UpperBackOtherskb{i} = A.data(f(11):f(11)+g,5:7);
+  b = find(UpperBackOtherskb{i}(:,1) == [9999999]);
+    UpperBackOtherskb{i}(b,:) = NaN;
+    clear b
+LowerBackOtherskb{i} = A.data(f(12):f(12)+g,5:7);
+  b = find(LowerBackOtherskb{i}(:,1) == [9999999]);
+    LowerBackOtherskb{i}(b,:) = NaN;
     clear A b g f t v r j i 
     
     cd(newdir);
 end
-clear Fs heads max* n* f* s* data* curdir ans
+clear Fs heads max* n* f* s*  curdir ans
