@@ -65,7 +65,7 @@ Neckskb = cell(1,numTrials);
 Headskb = cell(1,numTrials);
 UpperBackOtherskb = cell(1,numTrials);
 LowerBackOtherskb = cell(1,numTrials);
-data.skbfname = cell(1,numTrials);
+skbfname = cell(1,numTrials);
 for i = 1:numTrials
     fprintf('.');
     fname               =   datafiles{i};
@@ -149,3 +149,15 @@ LowerBackOtherskb{i} = A.data(f(12):f(12)+g,5:7);
     cd(newdir);
 end
 clear Fs heads max* n* f* s*  curdir ans
+data.LowerBackskb =LowerBackskb;
+data.LHipskb = LHipskb;
+data.LUpperLegskb = LUpperLegskb;
+data.LLowerLegskb = LLowerLegskb;
+data.RHipskb = RHipskb;
+data.RUpperLegskb = RUpperLegskb;
+data.RLowerLegskb = RLowerLegskb;
+data.UpperBackskb = UpperBackskb;
+data.Neckskb = Neckskb;
+data.Headskb = Headskb;
+data.UpperBackOtherskb = UpperBackOtherskb;
+data.LowerBackOtherskb = LowerBackOtherskb;

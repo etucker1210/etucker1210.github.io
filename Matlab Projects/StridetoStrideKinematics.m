@@ -1,22 +1,17 @@
 %The goal of this script is to gain individual kinematic data for each of
 %the strides.  This will include stride length, duty factor, 
-numtrials = length(data.forcefname)
-% for i = 1: numtrials
-%     % this will take care of stride length.
-%     
-%    figure('NumberTitle','off','Name',data.ff.ufnames{i});
-%    plotUglyFF(data.ff.FD((i*2-1):(i*2),:),data.ff.FO((i*2-1):(i*2),:))
-%    hold on 
-%    line(repmat(data.ff.forcestep(i*2,1),1,2),repmat(ylim,1,1));
-%    line(repmat(data.ff.forcestep(i*2,2),1,2),repmat(ylim,1,1));
-%    hold off
-% end
+numtrials = length(data.forcefname);
+
 %%
 %This will calculate the stride length of the stride going into the drop
 %and then after the drop.  
-
-
 for trial = 1: numtrials
+%     figure('NumberTitle','off','Name',data.ff.ufnames{trial});
+%        plotUglyFF(data.ff.FD((trial*2-1):(trial*2),:),data.ff.FO((trial*2-1):(trial*2),:))
+%        hold on 
+%         line(repmat(data.ff.forcestep(trial*2,1),1,2),repmat(ylim,1,1));
+%         line(repmat(data.ff.forcestep(trial*2,2),1,2),repmat(ylim,1,1));
+%        hold off
     if strcmp(data.ff.forcefoot(trial*2),'R')
         temp = isnan(data.ff.FD(trial*2,:))
         if isnan(data.ff.FD(trial*2-1,:))== 0
@@ -75,4 +70,20 @@ for trial = 1: numtrials
     clear lpos rpos temp
         
     end
+    % duty factor Pull FD and FO
+FD = data.ff.FD(trial*2-1:trial*2,:);
+FO = data.ff.FO(trial*2-1:trial*2,:);
+end
+
+%%
+%this calculates deltas for everything kinematically.
+
+for i = 1:numtrials
+    %call FDs for this
+    FD = data.ff.forcestep(i*2,1);
+    FO = data.ff.forcestep(i*2,2);
+    delt(i,1:4) = data.KE{i}(FO,1:4)- data.KE{i}(FD,1:4);
+    delt(i,5) = data.PE{i}(FO,1)- data.PE{i}(FD,1);
+    delt(i,6) = data.Ecom{i}(FO,1)- data.Ecom{i}(FD,1);
+    clear FD FO
 end

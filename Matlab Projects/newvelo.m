@@ -39,12 +39,12 @@ for i = 1:numtrials
         
 end
 
-    figure('NumberTitle','off','Name',data.ff.ufnames{i});
-    plot(Velofilt5{i});
-    hold on;
-    plot(velo{i},'k:');
-    title('5x stdfreq filter')
-    hold off;
+%     figure('NumberTitle','off','Name',data.ff.ufnames{i});
+%     plot(Velofilt5{i});
+%     hold on;
+%     plot(velo{i},'k:');
+%     title('5x stdfreq filter')
+%     hold off;
     
 end
     

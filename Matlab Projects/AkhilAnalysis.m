@@ -230,14 +230,14 @@ for i = 1:length(datafiles)
 
                 end
                 %apply the filter 
-                temp(:,j:j+2) = lopass_butterworth(U,70,500,4);
+                temp(:,j:j+2) = lopass_butterworth(U,60,500,4);
                 temp(r,j:j+2) = NaN;
 
                clear XYZ* r t U 
             end
        
     else
-        temp(:,j:j+2) = lopass_butterworth(XYZ,70,500,4);
+        temp(:,j:j+2) = lopass_butterworth(XYZ,60,500,4);
         
             end 
     end
