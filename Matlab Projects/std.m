@@ -1,4 +1,4 @@
-numtrials = length(data.forcefname);
+ numtrials = length(data.forcefname);
 % %%
 % STD = nan(2*numtrials,1);
 % for i = 1:numtrials

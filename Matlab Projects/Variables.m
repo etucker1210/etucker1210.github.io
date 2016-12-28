@@ -66,7 +66,7 @@ end
 comlen = mean(len,1);
 clear dif rpos lpos
 
-%Pull force data
+%% Pull force data
 for trial = 1: length(data.forcefname);
 switch data.ff.forcefoot{trial*2}
     case 'L'
@@ -80,7 +80,7 @@ switch data.ff.forcefoot{trial*2}
 end
 end
 
-%Get Force impulse angle data
+%% Get Force impulse angle data
 
 for i = 1:length(data.forcefname)
     xzang(i,1) = Angle2Horiz([data.Fimp(i,1),0,data.Fimp(i,3)]);
