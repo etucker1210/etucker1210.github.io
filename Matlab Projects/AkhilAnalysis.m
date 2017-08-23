@@ -189,6 +189,7 @@ for i = 1:length(datafiles)
     % interest. (Check first if ff.FD has a row i, then check that that row
     % is not empty before proceeding.)
     rotF    =   data.FTz{i};
+    
     if i <= size(ff.FD,1)
         if ~isempty(ff.FD(ff.ia(i),:))
             % find the column for BACK_MID

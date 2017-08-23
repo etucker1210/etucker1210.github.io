@@ -39,7 +39,7 @@ end
 cd(ffpath);
 [num,txt,raw]   =   xlsread(ffname);
 
-ff.raw          =   raw;
+ ff.raw          =   raw;
 ff.allfnames   	=   txt(2:end,1);
 ff.datafolder   =   txt(2:end,2);
 

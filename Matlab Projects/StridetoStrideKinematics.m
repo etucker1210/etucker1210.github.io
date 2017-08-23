@@ -74,16 +74,3 @@ for trial = 1: numtrials
 FD = data.ff.FD(trial*2-1:trial*2,:);
 FO = data.ff.FO(trial*2-1:trial*2,:);
 end
-
-%%
-%this calculates deltas for everything kinematically.
-
-for i = 1:numtrials
-    %call FDs for this
-    FD = data.ff.forcestep(i*2,1);
-    FO = data.ff.forcestep(i*2,2);
-    delt(i,1:4) = data.KE{i}(FO,1:4)- data.KE{i}(FD,1:4);
-    delt(i,5) = data.PE{i}(FO,1)- data.PE{i}(FD,1);
-    delt(i,6) = data.Ecom{i}(FO,1)- data.Ecom{i}(FD,1);
-    clear FD FO
-end
