@@ -2,10 +2,8 @@ numtrials = length(data.forcefname);
 
 %% this is going to make limb tradjectories xz plane
 numtrials = length(data.forcefname);
-
-
 for trial = 1:numtrials
-   force = data.ff.forcestep(trial*2,:);
+        force = data.ff.forcestep(trial*2,:);
         R_hip = data.R_hip{trial};
         R_knee = data.R_knee{trial};
         R_ankle = data.R_ankle{trial};
@@ -30,40 +28,40 @@ for trial = 1:numtrials
     figure('NumberTitle','off','Name',data.ff.ufnames{trial});
     subplot(2,1,1)
         plot(0,0,'ko')
-        hold on
-        plot(R_knee(:,1), R_knee(:,2),'r--')
-        plot(R_ankle(:,1), R_ankle(:,2),'k--') 
-        plot(R_foot(:,1), R_foot(:,2),'b--')
-        plot(R_toe(:,1), R_toe(:,2),'g--')
-        title('Limb Trajectory for Right Limb whole trial  top down')
-        xlabel('X Position');
-        ylabel('Y Position');
-        legend('hip', 'knee', 'ankle', ' foot' ,'toe');
-        if strcmp(data.ff.forcefoot(trial*2,1),'R')
             hold on
-        plot(R_knee(force(1):force(2),1), R_knee(force(1):force(2),2),'r')
-        plot(R_ankle(force(1):force(2),1), R_ankle(force(1):force(2),2),'k') 
-        plot(R_foot(force(1):force(2),1), R_foot(force(1):force(2),2),'b')
-        plot(R_toe(force(1):force(2),1), R_toe(force(1):force(2),2),'g')
-        end
+            plot(R_knee(:,1), R_knee(:,2),'r--')
+            plot(R_ankle(:,1), R_ankle(:,2),'k--') 
+            plot(R_foot(:,1), R_foot(:,2),'b--')
+            plot(R_toe(:,1), R_toe(:,2),'g--')
+            title('Limb Trajectory for Right Limb whole trial  top down')
+            xlabel('X Position');
+            ylabel('Y Position');
+        legend('hip', 'knee', 'ankle', ' foot' ,'toe');
+%         if strcmp(data.ff.forcefoot(trial*2,1),'R')
+%             hold on
+%             plot(R_knee(force(1):force(2),1), R_knee(force(1):force(2),2),'r')
+%             plot(R_ankle(force(1):force(2),1), R_ankle(force(1):force(2),2),'k') 
+%             plot(R_foot(force(1):force(2),1), R_foot(force(1):force(2),2),'b')
+%             plot(R_toe(force(1):force(2),1), R_toe(force(1):force(2),2),'g')
+%         end
        subplot(2,1,2)
-        plot(0,0,'ko')
-        hold on
-        plot(R_knee(:,1), R_knee(:,3),'r--')
-        plot(R_ankle(:,1), R_ankle(:,3),'k--') 
-        plot(R_foot(:,1), R_foot(:,3),'b--')
-        plot(R_toe(:,1), R_toe(:,3),'g--')
-        title('Limb Trajectory for Right Limb whole trial')
-        xlabel('X Position');
-        ylabel('Z Position');
-        legend('hip', 'knee', 'ankle', ' foot' ,'toe');
-        if strcmp(data.ff.forcefoot(trial*2,1),'R')
+            plot(0,0,'ko')
             hold on
-        plot(R_knee(force(1):force(2),1), R_knee(force(1):force(2),2),'r')
-        plot(R_ankle(force(1):force(2),1), R_ankle(force(1):force(2),2),'k') 
-        plot(R_foot(force(1):force(2),1), R_foot(force(1):force(2),2),'b')
-        plot(R_toe(force(1):force(2),1), R_toe(force(1):force(2),2),'g')
-        end
+            plot(R_knee(:,1), R_knee(:,3),'r--')
+            plot(R_ankle(:,1), R_ankle(:,3),'k--') 
+            plot(R_foot(:,1), R_foot(:,3),'b--')
+            plot(R_toe(:,1), R_toe(:,3),'g--')
+            title('Limb Trajectory for Right Limb whole trial')
+            xlabel('X Position');
+            ylabel('Z Position');
+            legend('hip', 'knee', 'ankle', ' foot' ,'toe');
+%         if strcmp(data.ff.forcefoot(trial*2,1),'R')
+%             hold on
+%             plot(R_knee(force(1):force(2),1), R_knee(force(1):force(2),2),'r')
+%             plot(R_ankle(force(1):force(2),1), R_ankle(force(1):force(2),2),'k') 
+%             plot(R_foot(force(1):force(2),1), R_foot(force(1):force(2),2),'b')
+%             plot(R_toe(force(1):force(2),1), R_toe(force(1):force(2),2),'g')
+%         end
         
     figure('NumberTitle','off','Name',data.ff.ufnames{trial});
     subplot(2,1,1)
@@ -77,13 +75,13 @@ for trial = 1:numtrials
         xlabel('X Position');
         ylabel('Z Position');
         legend('hip', 'knee', 'ankle', ' foot' ,'toe');
-        if strcmp(data.ff.forcefoot(trial*2,1),'L')
-            hold on
-        plot(L_knee(force(1):force(2),1), L_knee(force(1):force(2),2),'r')
-        plot(L_ankle(force(1):force(2),1), L_ankle(force(1):force(2),2),'k') 
-        plot(L_foot(force(1):force(2),1), L_foot(force(1):force(2),2),'b')
-        plot(L_toe(force(1):force(2),1), L_toe(force(1):force(2),2),'g')
-        end
+%         if strcmp(data.ff.forcefoot(trial*2,1),'L')
+%             hold on
+%         plot(L_knee(force(1):force(2),1), L_knee(force(1):force(2),2),'r')
+%         plot(L_ankle(force(1):force(2),1), L_ankle(force(1):force(2),2),'k') 
+%         plot(L_foot(force(1):force(2),1), L_foot(force(1):force(2),2),'b')
+%         plot(L_toe(force(1):force(2),1), L_toe(force(1):force(2),2),'g')
+%         end
       subplot(2,1,2)
         plot(0,0,'ko')
         hold on 
@@ -91,13 +89,13 @@ for trial = 1:numtrials
         plot(L_ankle(:,1), L_ankle(:,3),'k--') 
         plot(L_foot(:,1), L_foot(:,3),'b--')
         plot(L_toe(:,1), L_toe(:,3),'g--')
-        if strcmp(data.ff.forcefoot(trial*2,1),'L')
-            hold on
-        plot(L_knee(force(1):force(2),1), L_knee(force(1):force(2),2),'r')
-        plot(L_ankle(force(1):force(2),1), L_ankle(force(1):force(2),2),'k') 
-        plot(L_foot(force(1):force(2),1), L_foot(force(1):force(2),2),'b')
-        plot(L_toe(force(1):force(2),1), L_toe(force(1):force(2),2),'g')
-        end
+%         if strcmp(data.ff.forcefoot(trial*2,1),'L')
+%             hold on
+%         plot(L_knee(force(1):force(2),1), L_knee(force(1):force(2),2),'r')
+%         plot(L_ankle(force(1):force(2),1), L_ankle(force(1):force(2),2),'k') 
+%         plot(L_foot(force(1):force(2),1), L_foot(force(1):force(2),2),'b')
+%         plot(L_toe(force(1):force(2),1), L_toe(force(1):force(2),2),'g')
+%         end
         title('Limb Trajectory for Left Limb whole trial');
         xlabel('X Position');
         ylabel('Z Position');

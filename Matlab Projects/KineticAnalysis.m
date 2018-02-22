@@ -46,6 +46,7 @@ ff.mass = num(:,1);
 ff.svl = num(:,4);
 ff.treat = txt(2:end,4);
 ff.force = txt(2:end,5);
+ff.forcefoot    =   txt(2:end,6);
 ff.forcestep    =   num(:,7:8);
 ff.FD           =   num(:,9:2:end);
 ff.FO           =   num(:,10:2:end);
@@ -58,10 +59,10 @@ heads           =   cell([numTrials,1]);
 
 clear num txt raw
 
-% import force plate calibration matrix
-data.fpcalMat   =   importdata(calfname);
-% pre-allocate space for force data
-F               =   cell(1,numTrials);
+% % import force plate calibration matrix
+% data.fpcalMat   =   importdata(calfname);
+% % pre-allocate space for force data
+% F               =   cell(1,numTrials);
 
 clear cal* fidx
 
@@ -114,19 +115,19 @@ for i = 1:numTrials
     fclose (fid);
     clear A B
     
-    if strcmp(ff.force(i*2),'Yes')
+%     if strcmp(ff.force(i*2),'Yes')
         
-    % Import ANALOG data and convert to FORCE using calcCortexF
-    temp3           =   importdata(forcefname,'\t',11);
-    F{i}            =   calcCortexF(data.fpcalMat,temp3.data);
-    
-    % Zero force data using first 1000 data samples
-    F{i}            =   F{i} - repmat(mean(F{i}(1:1000,:)),size(F{i},1),1);
-    end
+%     % Import ANALOG data and convert to FORCE using calcCortexF
+%     temp3           =   importdata(forcefname,'\t',11);
+%     F{i}            =   calcCortexF(data.fpcalMat,temp3.data);
+%     
+%     % Zero force data using first 1000 data samples
+%     F{i}            =   F{i} - repmat(mean(F{i}(1:1000,:)),size(F{i},1),1);
+%      end
     cd(newdir);
 end
 
-data.FTz            =   F;
+% data.FTz            =   F;
 
 for i = 1:numTrials
     data.rawXYZ{i} = raw{i}(:,2:end);
@@ -161,7 +162,7 @@ for i = 1:length(datafiles)
     % Rotate the trials only if footfall data exist for the trial of
     % interest. (Check first if ff.FD has a row i, then check that that row
     % is not empty before proceeding.)
-    rotF    =   data.FTz{i};
+%     rotF    =   data.FTz{i};
     
 %     if i <= size(ff.FD,1)
 %         if ~isempty(ff.FD(ff.ia(i),:))
@@ -218,17 +219,17 @@ for i = 1:length(datafiles)
         
             end 
     end
-            % TEMP NOW CONTAINS ROTATED DATA
-            if isempty(data.FTz{i})==0
-                
-            % Rotatfe FORCES ONLY in FTz around Z-axis the same amount as
-            % kinematic data, then FILTER
-            rotF(:,1:3)     =   ZAxisRotAngle(data.FTz{i}(:,1:3),-theta(i));
-            for c = 1:6
-                rotF(:,c)   =   lopass_butterworth(rotF(:,c),60,Fs,4);
-            end
-            % ROTF NOW CONTAINS ROTATED AND FILTERED DATA!!!!
-            end
+%             % TEMP NOW CONTAINS ROTATED DATA
+%             if isempty(data.FTz{i})==0
+%                 
+%             % Rotatfe FORCES ONLY in FTz around Z-axis the same amount as
+%             % kinematic data, then FILTER
+%             rotF(:,1:3)     =   ZAxisRotAngle(data.FTz{i}(:,1:3),-theta(i));
+%             for c = 1:6
+%                 rotF(:,c)   =   lopass_butterworth(rotF(:,c),60,Fs,4);
+%             end
+%             % ROTF NOW CONTAINS ROTATED AND FILTERED DATA!!!!
+%             end
             
             clear colnum j temp2 varLoc;
 %         end
@@ -256,7 +257,7 @@ for i = 1:length(datafiles)
       
     end
     
-    data.rotF{i}    =   rotF;
+%     data.rotF{i}    =   rotF;
     data.rotXYZ{i}  =   temp;
     
     clear colnum rotF temp* v varLoc;
@@ -294,6 +295,264 @@ data.Tail2 = Tail2;
 data.Tail3 = Tail3;
 data.Tail4 = Tail4;
 data.Tail5 = Tail5;
+% %% Calculate duty factor, stride length, step width, and frequency
+% data.DF         =   nan(numTrials,2);   % column 2 is for drop trial only
+% data.sFreq      =   nan(numTrials,2);   % column 2 is for drop trial only
+% data.LsLen       =   nan(numTrials,2);   % column 2 is for drop trial only
+% data.RsLen       =   nan(numTrials,2);   % column 2 is for drop trial only
+% data.sWidth     =   nan(numTrials,2);   % column 2 is for drop trial only
+% for trial = 1:2:2*numTrials
+%     FD          =   ff.FD(trial:trial+1,:);
+%     FO          =   ff.FO(trial:trial+1,:);
+%     % Check that FD and FO have the same number of columns
+%     if size(FD,2) ~= size(FO,2)
+%         FD      =   FD(:,1:min([size(FD,2) size(FO,2)]));
+%         FO      =   FO(:,1:min([size(FD,2) size(FO,2)]));
+%     end
+%     
+%     numStr(1)   =   length(find(~isnan(FD(1,:))))-1;
+%     numStr(2)   =   length(find(~isnan(FD(2,:))))-1;
+% 
+%     % duty factor calculation
+%     stride      =   diff(FD,[],2);
+%     stance      =   FO-FD;
+%     DF          =   stance(:,1:size(stride,2))./stride;
+%     data.DF((trial+1)/2,1)    =   nanmean(reshape(DF,numel(DF),1));
+%     clear temp
+%     
+%     % stride frequency calculation
+%     tStr(1)     =   (max(FD(1,:)) - min(FD(1,:)))/fps;
+%     tStr(2)     =   (max(FD(2,:)) - min(FD(2,:)))/fps;
+%     sFreq       =   numStr./tStr;
+%     data.sFreq((trial+1)/2,1)     =   nanmean(reshape(sFreq,numel(sFreq),1));
+%     
+%     % stride length calculation based on same leg ankle to ankle 2D distance
+%     if sum(isnan(FD(2,:))) <= .5*length(FD(2,:)) %this may not necessairly be the best idea.  it is really only a problem if more than one is nan
+%         Rpos        =   R_ankle{(trial+1)/2}([min(FD(2,:)) max(FD(2,:))],:);
+%         RsLen       =   sqrt(sum(diff(Rpos(:,1:2)).^2))/numStr(2);
+%     else
+%         Rpos = 0;
+%         RsLen = 0;
+%     end
+%         
+%     Lpos        =   L_ankle{(trial+1)/2}([min(FD(1,:)) max(FD(1,:))],:);
+%    if isnan(Lpos(1,1)) == 1
+% %        Lpos(1,:) = L_ankle{(trial+1)/2}(FD(1,2),:)
+%    end
+%     LsLen       =   sqrt(sum(diff(Lpos(:,1:2)).^2))/numStr(1);
+% %     RsLen       =   sqrt(sum(diff(Rpos(:,1:2)).^2))/numStr(2);
+%     data.LsLen((trial+1)/2,1)	=   LsLen;  % trial average
+%     data.RsLen((trial+1)/2,1)   =   RsLen;  % trial average
+%     data.Rpos = Rpos;
+%     data.Lpos = Lpos;
+%     clear pos Rpos Lpos
+%     
+%     % step width calculation
+%     
+%     Lpos        =   L_ankle{(trial+1)/2}(FD(1,~isnan(FD(1,:))),1:2);
+% %     if isnan(Lpos(1,1)) == 1
+% %        Lpos(1,:) = L_ankle{(trial+1)/2}(FD(1,2),:)
+% %    end
+%     Rpos        =   R_ankle{(trial+1)/2}(FD(2,~isnan(FD(2,:))),1:2);
+%     % shorten to the short length if these are of different lengths
+%     if numel(Rpos) ~= 0
+%         if size(Lpos,1) ~= size(Rpos,1)
+%             Lpos    =   Lpos(1:min([size(Lpos,1) size(Rpos,1)]),:);
+%             Rpos    =   Rpos(1:min([size(Lpos,1) size(Rpos,1)]),:);
+%             sWidth     =   sqrt(sum((Lpos-Rpos).^2,2))';
+%             data.sWidth((trial+1)/2,1)  =   nanmean(sWidth);
+%         end
+%         else
+%             sWidth     =   sqrt(sum((Lpos).^2,2))';
+%             data.sWidth((trial+1)/2,1)  =   nanmean(sWidth);
+%     end
+%     % Calculations for drop step, only.
+%     if strcmp('drop',lower(ff.treat{trial}))
+% %         % duty factor
+% %         stance      =   diff(ff.forcestep(trial,:));
+% %         stride      =   FD(find(FD == ff.forcestep(trial,1))+2) - ff.forcestep(trial,1);
+% %         data.DF((trial+1)/2,2)      =   stance/stride;
+% %         DF(DF == stance/stride)     =   NaN;
+% %         data.DF((trial+1)/2,1)    =   nanmean(reshape(DF,numel(DF),1));
+% % 
+% %         % stride frequency
+% %         data.sFreq((trial+1)/2,2)       =   1/stride*fps;
+% %         sFreq(sFreq == 1/stride*fps)    =   NaN;
+% %         data.sFreq((trial+1)/2,1)       =   nanmean(sFreq);
+% %         
+% %         switch lower(ff.forcefoot{trial})
+% %             case 'l'
+% %                 % stride length
+% %      
+% %                 pos         =   L_ankle{(trial+1)/2}([ff.forcestep(trial,1) FD(find(FD == ff.forcestep(trial,1))+2)],:);
+% %                 data.LsLen((trial+1)/2,2)	=   sqrt(sum(diff(pos).^2));
+% %                 % stride width this is giving average stride with and drop
+% %                 % step
+% %                 if length(sWidth) >=  find(ff.forcestep(trial,1) == FD(1,:))
+% %                     
+% %                     data.sWidth((trial+1)/2,2)  =   sWidth(find(ff.forcestep(trial,1) == FD(1,:)));
+% %                     sWidth(sWidth == data.sWidth((trial+1)/2,2))    =   NaN;
+% %                     data.sWidth((trial+1)/2,1)  =   nanmean(sWidth);
+% %                 else
+% %                     data.sWidth((trial+1)/2,1)  =   nanmean(sWidth);
+% %                 end
+% %             case 'r'
+% %                 % stride length
+% %                 pos         =   R_ankle{(trial+1)/2}([ff.forcestep(trial,1) ff.forcestep(trial,2)],:);
+% %                 data.RsLen(2)	=   sqrt(sum(diff(pos).^2));
+% %                 % stride width
+% %                 if length(sWidth) >=  find(ff.forcestep(trial,1) == FD(2,:))
+% %                     data.sWidth((trial+1)/2,2)  =   sWidth(find(ff.forcestep(trial,1) == FD(2,:)));
+% %                 else
+% %                     data.sWidth((trial+1)/2,2) = nanmean(sWidth);
+% %                 end
+% %             otherwise
+% %                 disp('Force foot not detected. Drop variables not calculated.')
+%          end
+%     end
+% 
+% %     % write data to fields in data
+% %     data.DF((trial+1)/2)          =   nanmean(reshape(DF,1,numel(DF)));
+% %     data.sFreq((trial+1)/2,1)     =   nanmean(sFreq);
+% %     data.sLen((trial+1)/2,:)      =   mean([LsLen, RsLen]);
+% %     data.sWidth((trial+1)/2,1)    =   mean(sWidth);
+% 
+% 
+% clear DF FD FO Lpos LsLen Rpos RsLen sfreq stance swidth swing trial
+
+%% Calculate total Velocity only for first to final foot down, both feet
+% h               =   figure('Name','Back mid data smoothed');
+% h2              =   figure('Name','Back mid velocities');
+
+for trial = 1:2:2*numTrials
+    FD          =   [min(ff.FD(trial:trial+1,1)) max(max(ff.FD(trial:trial+1,:)))];
+    temp        =   Back_middle{(trial+1)/2}(FD(1):FD(2),:);     % extract only the region of interest
+    t           =   0:1/500:(size(temp,1)-1)/500;
+    
+    % find and remove instances of NaN for splining
+    tsp         =   t;
+    misspts     =   find(isnan(temp(:,1)));
+    if length(misspts) > size(temp,1)*.15
+        fprintf('More than 15 percent of the data are NaN for trial %d, file %s\n',(trial+1)/2,datafiles{(trial+1)/2});
+    end
+    
+    % pre-allocate space for smoothing
+    temp2   =   nan(size(temp,1),3);
+    utemp   =   nan(size(temp,1),3);
+    
+    % reduce tsp and temp to only existing ata in preparation for splining
+    tsp(misspts)    =   [];
+    temp(misspts,:) =   [];
+    
+    % smooth with butterworth filter      
+    for i = 1:3
+        % interpolate missing datapoints in temp into temp3
+        temp3       =   fnval(t,csaps(tsp,temp(:,i)));
+        temp2(:,i)  =   lopass_butterworth(temp3,80,500,4);
+        utemp(:,i)  =   fnval(t,fnder(csaps(t,temp2(:,i))));
+    end
+    
+    % store the TOTAL VELOCITY (sum x,y,z) in the fourth column of utemp
+    utemp(:,4)  =   sqrt(sum(utemp.^2,2));
+    
+%     figure(h);
+%     subplot(numTrials,1,(trial+1)/2);
+%     plot(tsp,temp,'k:');
+%     hold on; plot(t,temp2,'-');
+%     xlabel('Time (s)');
+%     ylabel('Position (mm)');
+%     title(sprintf('Position raw & filtered: %s',datafiles{(trial+1)/2}));
+%     
+%     figure(h2);
+%     subplot(numTrials,1,(trial+1)/2);
+%     plot(t,utemp);
+%     xlabel('Time (s)');
+%     ylabel('Velocity (mm/s)');
+%     title(sprintf('Velocity calculation: %s',datafiles{(trial+1)/2}));
+
+    Utot.data((trial+1)/2)    =   {utemp};
+    Utot.mean((trial+1)/2,:)  =   [nanmean(utemp(:,4)) nanstd(utemp(:,4))];
+    
+end
+
+data.Utot       =   Utot;
+
+clear FD Utot h h2 i misspts t temp* tsp utemp
+
+%% Calculate touch down angle (in radians) to the horizontal
+% 2015-11-19: changed from using hip to toe to hip to ankle to eliminate issues with
+% heel strike instead of toe strikes. This does modify the ultimate value
+% of touch down angle, but hopefully this will not be a problem.
+TDAngle         =   nan(numTrials,3);  % data in radians
+
+for trial = 1:numTrials
+    FD          =   ff.FD((2*trial)-1:2*trial,:);
+    
+    if ~isempty(L_hip{trial}) & ~isempty(L_ankle{trial})
+        [~,angL]             =   Angle2Horiz(L_hip{trial}, L_ankle{trial});
+        TDAngle(trial,1)    =   nanmean(angL(FD(1,(~isnan(FD(1,:))))));
+    else
+        disp('%s: Left hip and/or toe point missing. Touch down angle not calculated for the left foot.',ff.ufnames{trial});
+    end
+    if ~isempty(R_hip{trial}) & ~isempty(R_ankle{trial})
+        [~,angR]             =   Angle2Horiz(R_hip{trial}, R_ankle{trial});
+        TDAngle(trial,2)    =   nanmean(angR(FD(2,(~isnan(FD(2,:))))));
+    else
+        disp('%s: Right hip and/or toe point missing. Touch down angle not calculated for the right foot.',ff.ufnames{trial});
+    end
+    
+        % Calculations for drop step, only.
+    if strcmp('drop',lower(ff.treat{2*trial}))       
+        switch lower(ff.forcefoot{2*trial})
+            case 'l'
+                TDAngle(trial,3)    =   angL(ff.forcestep(2*trial,1));
+                angL(find(TDAngle(trial,3) == angL)) = NaN;
+                TDAngle(trial,1)    =   nanmean(angL(FD(1,(~isnan(FD(1,:))))));
+            case 'r'
+                TDAngle(trial,3)    =   angR(ff.forcestep(2*trial,1));
+                angR(find(TDAngle(trial,3) == angR)) = NaN;
+                TDAngle(trial,2)    =   nanmean(angR(FD(2,(~isnan(FD(2,:))))));
+            otherwise
+                disp('Force foot not detected. Touch-down angle for drop step not calculated.')
+        end
+    end
+end
+
+data.TDAngle    =   TDAngle*180/pi;
+clear TDAngle ang* trial FD
+
+%% Calculate body and tail angles (in radians) to the horizontal
+% Body angle calculated using Back_anterior and Back_posterior
+% (Back_posterior as the vertex)
+% Tail angle calculated using Back_posterior and Tail2, with
+% Back_posterior as the vertex
+% Use function Angle2Horiz to calculated the angle
+
+% pre-allocate space
+bodAng          =   cell(1,numTrials);
+tailAng         =   cell(1,numTrials);
+
+% h_ang           =   figure('NumberTitle','off','Name','Body and Tail Angles');
+for i = 1:numTrials
+    t           =   0:1/fps:(size(Back_posterior{i},1)-1)/fps;
+    [bodDeg, bodAng{i}]     =   Angle2Horiz(Back_anterior{i},Back_posterior{i});
+    [tailDeg, tailAng{i}]   =   Angle2Horiz(Tail2{i},Back_posterior{i});
+%     figure(h_ang);
+%     subplot(numTrials,1,i);
+%     plot(t,[bodDeg tailDeg],'LineWidth',2);
+%     ylabel('Angle (degrees)');
+%     if i == 1
+%         legend('Body Angle','Tail Angle',0);
+%         legend('boxoff');
+%     elseif i == numTrials
+%         xlabel('Time (s)');
+%     end
+end
+
+data.bodAng     =   bodAng;
+data.tailAng    =   tailAng;
+
+clear i t *Ang *Deg
 %% Instantaneous Velocity Calculation
 
 for i = 1:numTrials
@@ -301,7 +560,7 @@ for i = 1:numTrials
      FO = data.ff.FO(i*2-1:i*2,:);
 
      velo{i} = CalcVelocity(data.Head_Anterior{i},500);
-    veloshort{i} = velo{i}(min(FD(:)):max(FO(:)),:);
+     veloshort{i} = velo{i}(min(FD(:)):max(FO(:)),:);
 end
 data.instvelo= velo;
 data.veloshort = veloshort;
@@ -311,18 +570,19 @@ for i =1:numTrials
         a = max(veloshort{i}(:,j));
         b = min(veloshort{i}(:,j));
         percentvelodif(i,j) = (a-b)/a*100;
-      if isempty(data.FTz{i})==0
-        ForceMax(i,j) = max(data.rotF{i}(:,j));
-        ForceMin(i,j) = min(data.rotF{i}(:,j));
-      end
+%       if isempty(data.FTz{i})==0
+%         ForceMax(i,j) = max(data.rotF{i}(:,j));
+%         ForceMin(i,j) = min(data.rotF{i}(:,j));
+%       end
     end
 end
 clear FD FO a b i j
-data.ForceMax = ForceMax;
-data.ForceMin = ForceMin;
+% data.ForceMax = ForceMax;
+% data.ForceMin = ForceMin;
 data.percentvelodif = percentvelodif;
 %%
 data.ff = ff;
 data.datafiles = datafiles;
 data.fps = fps;
 data.Fs = Fs;
+data.ff.forcefoot= data.ff.raw(2:end,8);

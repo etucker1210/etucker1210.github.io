@@ -35,12 +35,12 @@ elseif exist('C:\Users\Tonia Hsieh\Box Sync\Liz Basilisk Data') == 7    % office
     calfname                =   'fpCalMatrix.csv';
     calpath                 =   'C:\Users\Liz\Desktop\Liz Basilisk Data';
     newdir                  =   'C:\Users\Liz\Desktop\Liz Basilisk Data\Data';
-elseif exist('/Users/ElizabethTucker/Desktop/Liz Basilisk Data') == 7    % laptop
-    ffname                  =   'Footfalldataforcedrop'; %'BasiliskFootfalls.xlsx';
-    ffpath                  =   '/Users/ElizabethTucker/Desktop/Liz Basilisk Data/';
+elseif exist('C:\Users\Liz\Desktop\DataLarge') == 7    % laptop
+    ffname                  =   'FootFallData'; %'BasiliskFootfalls.xlsx';
+    ffpath                  =   'C:\Users\Liz\Desktop\DataLarge';
     calfname                =   'fpCalMatrix.csv';
-    calpath                 =   '/Users/ElizabethTucker/Desktop/Liz Basilisk Data/';
-    newdir                  =   '/Users/ElizabethTucker/Desktop/Liz Basilisk Data/Data';
+    calpath                 =   'C:\Users\Liz\Desktop\DataLarge\';
+    newdir                  =   'C:\Users\Liz\Desktop\DataLarge';
 else
     [ffname,ffpath,fidx]        =   uigetfile('*.xlsx','Select Footfall File');
     [calfname,calpath,fidx]     =   uigetfile('*.csv','Select Force Plate Calibration Matrix (*.csv)');
@@ -52,17 +52,19 @@ end
 cd(ffpath);
 [num,txt,raw]   =   xlsread(ffname);
 
-ff.raw          =   raw;
+ff.raw          =   raw(:,1:18);
 ff.allfnames   	=   txt(2:end,1);
 ff.datafolder   =   txt(2:end,2);
 ff.ID           =   cell(size(ff.allfnames));   % empty ID matrix
 ff.mass         =   num(:,1);
 ff.treat        =   txt(2:end,4);
-ff.fffoot       =   txt(2:end,5);
-ff.forcefoot    =   txt(2:end,6);
-ff.forcestep    =   num(:,5:6);
-ff.FD           =   num(:,8:2:end);
-ff.FO           =   num(:,9:2:end);
+ff.kinematic    =   txt(2:end,5);
+ff.svl          =   num(:,4);
+ff.fffoot       =   txt(2:end,7);
+ff.forcefoot    =   txt(2:end,8);
+ff.forcestep    =   num(:,7:8);
+ff.FD           =   num(:,9:2:end);
+ff.FO           =   num(:,10:2:end);
 ff.numStr       =   nan(length(ff.allfnames),1);
 
 % fill in ff.ID and ff.numStr
@@ -77,8 +79,6 @@ for i = 1:length(ff.ID)
     clear temp;
 end
 clear *ID i
-ff.svl = ff.FD(:,4);
-ff.FD = ff.FD(:,1:3);
 % Extract unique filenames
 [ff.ufnames,ff.ia,ff.ic]    =   unique(txt(2:end,1),'stable');  
 ff.datafolder               =   ff.datafolder(ff.ia);
@@ -146,8 +146,12 @@ for i = 1:numTrials
     clear A B
     
     % Import ANALOG data and convert to FORCE using calcCortexF
-    temp3           =   importdata(forcefname,'\t',11);
-    F{i}            =   calcCortexF(data.fpcalMat,temp3.data);
+    if exist(forcefname,'file')==0
+        F{i} = zeros(size(raw{i},1)*10,6);
+    else
+        temp3           =   importdata(forcefname,'\t',11);
+        F{i}            =   calcCortexF(data.fpcalMat,temp3.data);
+    end
     
     % Zero force data using first 1000 data samples
     F{i}            =   F{i} - repmat(mean(F{i}(1:1000,:)),size(F{i},1),1);
@@ -203,7 +207,9 @@ for i = 1:length(datafiles)
             % for each file as the metric for run direction.
             theta(i)=   atan(diff(temp2([min(ff.FD(ff.ia(i),:)) max(ff.FD(ff.ia(i),:))],2))/...
                              diff(temp2([min(ff.FD(ff.ia(i),:)) max(ff.FD(ff.ia(i),:))],1)));
-            
+            if isnan(theta(i))
+                fprintf('LIZZZZ Remove %s.\r',datafiles{i});
+            end
 %             atan(diff(temp2([min(ff.forcestep(ff.ia(i),:)) max(ff.forcestep(ff.ia(i),:))],2))/...
 %                              diff(temp2([min(ff.forcestep(ff.ia(i),:)) max(ff.forcestep(ff.ia(i),:))],1)));
             
@@ -216,7 +222,7 @@ for i = 1:length(datafiles)
             %Apply filter
     for j = 3:3:size(temp,2)
         XYZ = temp(:,j:j+2);
-        if ~isempty(find(isnan(temp(:,j))));
+        if ~isempty(find(isnan(temp(:,j))))
             if sum(isnan(temp(:,j)))< .6*(length(temp(:,j)))
                 XYZ_old = XYZ;
                 t               =   0:1/fps:(size(XYZ,1)-1)/fps;
@@ -320,8 +326,8 @@ data.LsLen       =   nan(numTrials,2);   % column 2 is for drop trial only
 data.RsLen       =   nan(numTrials,2);   % column 2 is for drop trial only
 data.sWidth     =   nan(numTrials,2);   % column 2 is for drop trial only
 for trial = 1:2:2*numTrials
-    FD          =   ff.FD(trial:trial+1,:);
-    FO          =   ff.FO(trial:trial+1,:);
+    FD          =   ff.FD(trial:trial+1,1:3);
+    FO          =   ff.FO(trial:trial+1,1:3);
     % Check that FD and FO have the same number of columns
     if size(FD,2) ~= size(FO,2)
         FD      =   FD(:,1:min([size(FD,2) size(FO,2)]));
@@ -345,33 +351,47 @@ for trial = 1:2:2*numTrials
     data.sFreq((trial+1)/2,1)     =   nanmean(reshape(sFreq,numel(sFreq),1));
     
     % stride length calculation based on same leg ankle to ankle 2D distance
-    if sum(isnan(FD(2,:))) <= .5*length(FD(2,:)) %this may not necessairly be the best idea.  it is really only a problem if more than one is nan
-        Rpos        =   R_ankle{(trial+1)/2}([min(FD(2,:)) max(FD(2,:))],:);
+    if sum(isnan(FD(2,:))) <= .5*length(FD(2,:)) && isempty(data.R_ankle{(trial+1)/2})==0%this may not necessairly be the best idea.  it is really only a problem if more than one is nan
+        Rpos        =   data.R_ankle{(trial+1)/2}([min(FD(2,:)) max(FD(2,:))],:);
         RsLen       =   sqrt(sum(diff(Rpos(:,1:2)).^2))/numStr(2);
     else
-        Rpos = 0;
-        RsLen = 0;
+        Rpos = NaN;
+        RsLen = NaN;
     end
-        
-    Lpos        =   L_ankle{(trial+1)/2}([min(FD(1,:)) max(FD(1,:))],:);
+    if  isempty(data.L_ankle{(trial+1)/2})==0   
+        Lpos        =   data.L_ankle{(trial+1)/2}([min(FD(1,:)) max(FD(1,:))],:);
+    else
+        Lpos = NaN;
+    end
    if isnan(Lpos(1,1)) == 1
 %        Lpos(1,:) = L_ankle{(trial+1)/2}(FD(1,2),:)
    end
-    LsLen       =   sqrt(sum(diff(Lpos(:,1:2)).^2))/numStr(1);
+   if Lpos == 0 | isnan(Lpos)
+       LsLen = NaN;
+   else
+       LsLen       =   sqrt(sum(diff(Lpos(:,1:2)).^2))/numStr(1);
+   end
 %     RsLen       =   sqrt(sum(diff(Rpos(:,1:2)).^2))/numStr(2);
     data.LsLen((trial+1)/2,1)	=   LsLen;  % trial average
     data.RsLen((trial+1)/2,1)   =   RsLen;  % trial average
-    data.Rpos = Rpos;
-    data.Lpos = Lpos;
+    
     clear pos Rpos Lpos
     
     % step width calculation
-    
-    Lpos        =   L_ankle{(trial+1)/2}(FD(1,~isnan(FD(1,:))),1:2);
+    if  isempty(data.L_ankle{(trial+1)/2})==0;
+      Lpos        =   L_ankle{(trial+1)/2}(FD(1,~isnan(FD(1,:))),1:2);
+    else
+     Lpos = 0;
+    end
 %     if isnan(Lpos(1,1)) == 1
 %        Lpos(1,:) = L_ankle{(trial+1)/2}(FD(1,2),:)
 %    end
-    Rpos        =   R_ankle{(trial+1)/2}(FD(2,~isnan(FD(2,:))),1:2);
+
+    if isempty(data.R_ankle{(trial+1)/2})==0 
+      Rpos        =   R_ankle{(trial+1)/2}(FD(2,~isnan(FD(2,:))),1:2);
+    else
+        Rpos = 0;
+    end
     % shorten to the short length if these are of different lengths
     if numel(Rpos) ~= 0
         if size(Lpos,1) ~= size(Rpos,1)
@@ -385,7 +405,7 @@ for trial = 1:2:2*numTrials
             data.sWidth((trial+1)/2,1)  =   nanmean(sWidth);
     end
     % Calculations for drop step, only.
-    if strcmp('drop',lower(ff.treat{trial}))
+    if strcmp('drop',lower(ff.treat{trial})) && strcmp('Yes',data.ff.kinematic(trial));
         % duty factor
         stance      =   diff(ff.forcestep(trial,:));
         stride      =   FD(find(FD == ff.forcestep(trial,1))+2) - ff.forcestep(trial,1);
@@ -510,13 +530,13 @@ for trial = 1:numTrials
         [~,angL]             =   Angle2Horiz(L_hip{trial}, L_ankle{trial});
         TDAngle(trial,1)    =   nanmean(angL(FD(1,(~isnan(FD(1,:))))));
     else
-        disp('%s: Left hip and/or toe point missing. Touch down angle not calculated for the left foot.',ff.ufnames{trial});
+%         disp('%s: Left hip and/or toe point missing. Touch down angle not calculated for the left foot.',ff.ufnames{trial});
     end
     if ~isempty(R_hip{trial}) & ~isempty(R_ankle{trial})
         [~,angR]             =   Angle2Horiz(R_hip{trial}, R_ankle{trial});
         TDAngle(trial,2)    =   nanmean(angR(FD(2,(~isnan(FD(2,:))))));
     else
-        disp('%s: Right hip and/or toe point missing. Touch down angle not calculated for the right foot.',ff.ufnames{trial});
+%         disp('%s: Right hip and/or toe point missing. Touch down angle not calculated for the right foot.',ff.ufnames{trial});
     end
     
         % Calculations for drop step, only.
@@ -552,21 +572,23 @@ tailAng         =   cell(1,numTrials);
 
 % h_ang           =   figure('NumberTitle','off','Name','Body and Tail Angles');
 for i = 1:numTrials
-    t           =   0:1/fps:(size(Back_posterior{i},1)-1)/fps;
-    [bodDeg, bodAng{i}]     =   Angle2Horiz(Back_anterior{i},Back_posterior{i});
-    [tailDeg, tailAng{i}]   =   Angle2Horiz(Tail2{i},Back_posterior{i});
-%     figure(h_ang);
-%     subplot(numTrials,1,i);
-%     plot(t,[bodDeg tailDeg],'LineWidth',2);
-%     ylabel('Angle (degrees)');
-%     if i == 1
-%         legend('Body Angle','Tail Angle',0);
-%         legend('boxoff');
-%     elseif i == numTrials
-%         xlabel('Time (s)');
-%     end
+    if ~isempty(Back_posterior{i}) && ~isempty(Back_anterior{i}) && ~isempty(Tail2{i})
+        t           =   0:1/fps:(size(Back_posterior{i},1)-1)/fps;
+        [bodDeg, bodAng{i}]     =   Angle2Horiz(Back_anterior{i},Back_posterior{i});
+        [tailDeg, tailAng{i}]   =   Angle2Horiz(Tail2{i},Back_posterior{i});
+%         figure(h_ang);
+%         subplot(numTrials,1,i);
+%         plot(t,[bodDeg tailDeg],'LineWidth',2);
+%         ylabel('Angle (degrees)');
+%         if i == 1
+%             legend('Body Angle','Tail Angle',0);
+%             legend('boxoff');
+%         elseif i == numTrials
+%             xlabel('Time (s)');
+%         end
+    end
 end
-
+    
 data.bodAng     =   bodAng;
 data.tailAng    =   tailAng;
 
@@ -587,6 +609,7 @@ data.Vi     =   nan(numTrials,3);
 
 for trial = 1:numTrials
     % Assign force data for trial to new variable F
+if strcmp('Yes',data.ff.kinematic(trial*2,1)) 
     F       =   data.rotF{trial}(:,1:3);
     
     % Calculate force impulse
@@ -709,6 +732,7 @@ for trial = 1:numTrials
     end
     clear Vi Posi c
 end
+end
 data.F          =   F;
 data.Fimp       =   Fimp;
 data.FzPeak     =   FzPeak;
@@ -726,8 +750,9 @@ kvert           =   nan(numTrials,1);
 kleg            =   nan(numTrials,1);
 thetaSweep      =   nan(numTrials,1);
 for trial = 1:numTrials
+if strcmp('Yes',data.ff.kinematic(trial*2,1)) 
     CM          =   data.CM{trial};
-    foot        =   ff.forcefoot(trial);
+    foot        =   ff.forcefoot(trial*2);
     
     % Extract stance period for the foot producing force to variable
     % FORCESTEP Remaining calculations will deal with this step, ONLY!
@@ -773,6 +798,7 @@ for trial = 1:numTrials
     kleg(trial)     =   dFz/zleg;
     
 end
+end
 
 data.kvert          =   kvert;
 data.kleg           =   kleg;
@@ -792,6 +818,7 @@ data.PE     =   cell(1,numTrials);
 data.Ecom   =   cell(1,numTrials);
 
 for trial = 1:numTrials
+ if strcmp('Yes',data.ff.kinematic(trial*2,1)) 
     
     % All mass data are contained in data.ff.mass
     mb              =   data.ff.mass(data.ff.ia(trial))/1000;
@@ -822,9 +849,9 @@ for trial = 1:numTrials
 %     plot(1:length(data.dCM{trial,1}(:,1)),data.dCM{trial,1}(:,1));
 %     title('Velocity'); 
 %     
-    
+ end    
 end
- 
-clear U mb trial
-filename = 'ForceData';
-xlswrite(filename, ans)
+%  
+% clear U mb trial
+% filename = 'ForceData';
+% xlswrite(filename, ans)
