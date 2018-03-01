@@ -35,12 +35,7 @@ elseif exist('C:\Users\Tonia Hsieh\Box Sync\Liz Basilisk Data') == 7    % office
     calfname                =   'fpCalMatrix.csv';
     calpath                 =   'C:\Users\Liz\Desktop\Liz Basilisk Data';
     newdir                  =   'C:\Users\Liz\Desktop\Liz Basilisk Data\Data';
-elseif exist('C:\Users\Liz\Desktop\DataLarge') == 7    % laptop
-    ffname                  =   'FootFallData'; %'BasiliskFootfalls.xlsx';
-    ffpath                  =   'C:\Users\Liz\Desktop\DataLarge';
-    calfname                =   'fpCalMatrix.csv';
-    calpath                 =   'C:\Users\Liz\Desktop\DataLarge\';
-    newdir                  =   'C:\Users\Liz\Desktop\DataLarge';
+elseif  
 else
     [ffname,ffpath,fidx]        =   uigetfile('*.xlsx','Select Footfall File');
     [calfname,calpath,fidx]     =   uigetfile('*.csv','Select Force Plate Calibration Matrix (*.csv)');

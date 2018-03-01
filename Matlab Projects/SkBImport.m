@@ -29,6 +29,11 @@ if exist('/Users/ElizabethTucker/Desktop/Liz Basilisk Data') == 7    % laptop
     ffname                  =   'Footfalldataforceflat'; %'BasiliskFootfalls.xlsx';
     ffpath                  =   '/Users/ElizabethTucker/Desktop/Liz Basilisk Data/';
     newdir                  =   '/Users/ElizabethTucker/Desktop/Liz Basilisk Data/Data';
+    
+elseif exist('C:\Users\Liz\Desktop\DataLarge') == 7    % laptop
+    ffname                  =   'FootFallData'; %'BasiliskFootfalls.xlsx';
+    ffpath                  =   'C:\Users\Liz\Desktop\DataLarge';
+    newdir                  =   'C:\Users\Liz\Desktop\DataLarge';
 else
     [ffname,ffpath,fidx]        =   uigetfile('*.xlsx','Select Footfall File');
     newdir                      =   uigetdir('','Select the Directory Containing Data Folders'); 
@@ -39,7 +44,7 @@ end
 cd(ffpath);
 [num,txt,raw]   =   xlsread(ffname);
 
- ff.raw          =   raw;
+ff.raw          =   raw;
 ff.allfnames   	=   txt(2:end,1);
 ff.datafolder   =   txt(2:end,2);
 
@@ -53,24 +58,11 @@ heads           =   cell([numTrials,1]);
 
 clear num txt raw
 
-LowerBackskb = cell(1,numTrials);
-LHipskb = cell(1,numTrials);
-LUpperLegskb = cell(1,numTrials);
-LLowerLegskb = cell(1,numTrials);
-RHipskb = cell(1,numTrials);
-RUpperLegskb = cell(1,numTrials);
-RLowerLegskb = cell(1,numTrials);
-UpperBackskb = cell(1,numTrials);
-Neckskb = cell(1,numTrials);
-Headskb = cell(1,numTrials);
-UpperBackOtherskb = cell(1,numTrials);
-LowerBackOtherskb = cell(1,numTrials);
-skbfname = cell(1,numTrials);
 for i = 1:numTrials
-    fprintf('.');
+    fprintf('%d,',i)
     fname               =   datafiles{i};
     if isempty(strfind(fname,'.'))      % confirms that file extension not included
-        skbfname       =   [fname '.xls'];
+        skbfname       =   [fname '.htr.xlsx'];
     end
 
     data.skbfname{i} = skbfname;
@@ -78,86 +70,57 @@ for i = 1:numTrials
     % change directory to the appropriate folder
     cd(newdir);
     cd(['./' ff.datafolder{i}]);
-    clear start*
     
-    % Import KINEMATIC DATA
+    % Import Angle Data
     %   numerical data import and assign to TEMP2
     A           =   importdata(skbfname);      % File has 54 header lines for Lower Back
-    
-    % import relevant header information
-    r           =   1:size(A.data,1);
-    r(find(~isnan(A.data(:,1))))   =   [];
-    t = length(r);
-    r(t+1) = 0;
-    v =0;
-    for j = 1:t
-        if r(j)+1 == r(j+1)
-        else
-            v = v+1;
-            f(v,1)=r(j)+1;
-        end
-    end
-g=f(2)-f(1)-3;
-LowerBackskb{i} = A.data(f(1):f(1)+g,5:7);
-    b = find(LowerBackskb{i}(:,1) == [9999999]);
-    LowerBackskb{i}(b,:) = NaN;
-    clear b
-LHipskb{i} = A.data(f(2):f(2)+g,5:7);
-    b = find(LHipskb{i}(:,1) == [9999999]);
-    LHipskb{i}(b,:) = NaN;
-    clear b
-LUpperLegskb{i} = A.data(f(3):f(3)+g,5:7);
-    b = find(LUpperLegskb{i}(:,1) == [9999999]);
-    LUpperLegskb{i}(b,:) = NaN;
-    clear b
-LLowerLegskb{i} = A.data(f(4):f(4)+g,5:7);
-    b = find(LLowerLegskb{i}(:,1) == [9999999]);
-    LLowerLegskb{i}(b,:) = NaN;
-    clear b
-RHipskb{i} = A.data(f(5):f(5)+g,5:7);
-    b = find(RHipskb{i}(:,1) == [9999999]);
-    RHipskb{i}(b,:) = NaN;
-    clear b
-RUpperLegskb{i} = A.data(f(6):f(6)+g,5:7);
-  b = find(RUpperLegskb{i}(:,1) == [9999999]);
-    RUpperLegskb{i}(b,:) = NaN;
-    clear b
-RLowerLegskb{i} = A.data(f(7):f(7)+g,5:7);
-  b = find(RLowerLegskb{i}(:,1) == [9999999]);
-    RLowerLegskb{i}(b,:) = NaN;
-    clear b
-UpperBackskb{i} = A.data(f(8):f(8)+g,5:7);
-  b = find(UpperBackskb{i}(:,1) == [9999999]);
-    UpperBackskb{i}(b,:) = NaN;
-Neckskb {i} = A.data(f(9):f(9)+g,5:7);
-  b = find(Neckskb{i}(:,1) == [9999999]);
-    Neckskb{i}(b,:) = NaN;
-    clear b
-Headskb{i} = A.data(f(10):f(10)+g,5:7);
-  b = find(Headskb{i}(:,1) == [9999999]);
-    Headskb{i}(b,:) = NaN;
-    clear b
-UpperBackOtherskb{i} = A.data(f(11):f(11)+g,5:7);
-  b = find(UpperBackOtherskb{i}(:,1) == [9999999]);
-    UpperBackOtherskb{i}(b,:) = NaN;
-    clear b
-LowerBackOtherskb{i} = A.data(f(12):f(12)+g,5:7);
-  b = find(LowerBackOtherskb{i}(:,1) == [9999999]);
-    LowerBackOtherskb{i}(b,:) = NaN;
-    clear A b g f t v r j i 
-    
-    cd(newdir);
+    varnames    =   genvarname({'LowerBack','UpperBack','LHip','LUpperLeg','LLowerLeg',...
+    'LFoot','RHip','RUpperLeg','RLowerLeg','RFoot','Neck','Head','LowerBackOther','UpperBackOther'});
+     temph = A.textdata(64:end,:);
+     temph = strrep(temph, ']','');
+     temph = strrep(temph, '[','');
+     temp = A.data(23:end,:);
+     for t = 2:8
+        b = find(temp(:,t) == [9999999]);
+        temp(b,t) = NaN;
+     end
+     clear b
+     for v = 1:length(varnames)
+            % find the appropriate column for VARNAMES{v}
+            varLoc  =  find(strcmp(temph,varnames{v}));
+            rowstart = varLoc + 2;
+            lengthrow = max(temp(:,1)) + rowstart -1;
+            if isempty(varLoc)
+                fprintf('No variable %s found for %s. Variables not created.\r',varnames{v},skbfname);
+                eval([varnames{v} '{i}  = [];']);
+            else
+                if lengthrow > size(temp,1)
+                    fprintf('No variable %s found for %s. Variables not created.\r',varnames{v},skbfname);
+                    eval([varnames{v} '{i}  = [];']);
+                else
+                    %disp(sprintf('Variable %s is found to occupy row %d in file %s.\r',varnames{v},varLoc,skbfname));
+                    % Extract the variable
+                    temp2       =   temp(rowstart:lengthrow,5:7);
+                    eval([varnames{v} '{i}  = temp2;']);
+                end
+            end
+     end
+     clear temp* lengthrow rowstart t v varLoc A
 end
-clear Fs heads max* n* f* s*  curdir ans
-data.LowerBackskb =LowerBackskb;
-data.LHipskb = LHipskb;
-data.LUpperLegskb = LUpperLegskb;
-data.LLowerLegskb = LLowerLegskb;
-data.RHipskb = RHipskb;
-data.RUpperLegskb = RUpperLegskb;
-data.RLowerLegskb = RLowerLegskb;
-data.UpperBackskb = UpperBackskb;
-data.Neckskb = Neckskb;
-data.Headskb = Headskb;
-data.UpperBackOtherskb = UpperBackOtherskb;
-data.LowerBackOtherskb = LowerBackOtherskb;
+
+clear Fs heads max* n* f* s*  curdir ans varnames
+data.LowerBackskb =LowerBack;
+data.LHipskb = LHip;
+data.LUpperLegskb = LUpperLeg
+data.LLowerLegskb = LLowerLeg;
+data.LFootskb = LFoot;
+data.RHipskb = RHip;
+data.RUpperLegskb = RUpperLeg;
+data.RLowerLegskb = RLowerLeg;
+data.RFootskb = RFoot;
+data.UpperBackskb = UpperBack;
+data.Neckskb = Neck;
+data.Headskb = Head;
+data.UpperBackOtherskb = UpperBackOther;
+data.LowerBackOtherskb = LowerBackOther;
+clear L* U* R* Neck Head i datafiles

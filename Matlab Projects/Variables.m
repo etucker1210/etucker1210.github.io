@@ -130,85 +130,90 @@ numtrials = length(data.forcefname);
 
 %%
 %This will calculate the stride length of the stride going into the drop
-%and then after the drop.  
-% for trial = 1: numtrials
+%and then after the drop. 
+stdin = NaN(numtrials,1);
+stdout = NaN(numtrials,1);
+oppos = NaN(numtrials,1);
+ for trial = 1: numtrials
 % %     figure('NumberTitle','off','Name',data.ff.ufnames{trial});
 % %        plotUglyFF(data.ff.FD((trial*2-1):(trial*2),:),data.ff.FO((trial*2-1):(trial*2),:))
 % %        hold on 
 % %         line(repmat(data.ff.forcestep(trial*2,1),1,2),repmat(ylim,1,1));
 % %         line(repmat(data.ff.forcestep(trial*2,2),1,2),repmat(ylim,1,1));
 % %        hold off
-%     if strcmp(data.ff.forcefoot(trial*2),'R')
-%         temp = isnan(data.ff.FD(trial*2,:))
-%         if isnan(data.ff.FD(trial*2-1,:))== 0
-%             lpos= data.L_toe{trial}([data.ff.FD(trial*2-1,3) data.ff.FD(trial*2-1,2)],:);
-%           
-%         else
-%             %think about how this might get fucked up
-%             lpos= data.L_toe{trial}([min(data.ff.FD(trial*2-1,:)) max(data.ff.FD(trial*2-1,:))],:);
-%         end
-%         
-%         rpos = nan(3,3);
-%         if sum(temp) == 0
-%             rpos = data.R_toe{trial}([repmat(data.ff.FD(trial*2,:),1,1)],:)
-%         else
-%             for i = 1:3
-%                 if temp(i) ==  0
-%                     rpos(i,:) = data.R_toe{trial}([repmat(data.ff.FD(trial*2,i),1,1)],:);
-%                 
-%                 end
-%             end
-%         end
-%         
-%         stdin(trial) = sqrt(sum(diff(rpos(1:2,1:3))).^2);
-%         stdout(trial) = sqrt(sum(diff(rpos(2:3,1:3))).^2);
-%         oppos (trial) = sqrt(sum(diff(lpos(:,1:3))).^2);
-%         clear lpos rpos temp
-%     
-%     else 
-%         temp = isnan(data.ff.FD(trial*2-1,:));
-%         if sum(isnan(data.ff.FD(trial*2,:)))== 0
-%             rpos= data.R_toe{trial}([data.ff.FD(trial*2,3) data.ff.FD(trial*2,2)],:);
-%           
-%         elseif sum(isnan(data.ff.FD(trial*2,:)))==3
-%             rpos=nan(2,3);
-%         else
-%             
-%             %think about how this might get fucked up
-%             rpos= data.R_toe{trial}([min(data.ff.FD(trial*2,:)) max(data.ff.FD(trial*2,:))],:);
-%         end
-%         
-%         lpos = nan(3,3);
-%         if sum(temp) == 0
-%             lpos = data.L_toe{trial}([repmat(data.ff.FD(trial*2-1,:),1,1)],:)
-%         else
-%             for i = 1:3
-%                 if temp(i) & isempty(data.L_toe{trial}) ==  0
-%                     lpos(i,:) = data.L_toe{trial}([repmat(data.ff.FD(trial*2-1,i),1,1)],:);
-%                 end
-%             end
-%         end
-%         
-%     stdin(trial) = sqrt(sum(diff(lpos(1:2,1:3))).^2);
-%     stdout(trial) = sqrt(sum(diff(lpos(2:3,1:3))).^2);
-%     oppos (trial) = sqrt(sum(diff(rpos(:,1:3))).^2);
-%     clear lpos rpos temp
-%         
-%     end
+    if strcmp(data.ff.kinematic(trial*2),'Yes')
+        if strcmp(data.ff.forcefoot(trial*2),'R')
+            temp = isnan(data.ff.FD(trial*2,:));
+            if isnan(data.ff.FD(trial*2-1,:))== 0
+                lpos= data.L_toe{trial}([data.ff.FD(trial*2-1,3) data.ff.FD(trial*2-1,2)],:);
+          
+            else
+            %think about how this might get fucked up
+                lpos= data.L_toe{trial}([min(data.ff.FD(trial*2-1,:)) max(data.ff.FD(trial*2-1,:))],:);
+            end
+        
+            rpos = nan(3,3);
+            if sum(temp) == 0
+                rpos = data.R_toe{trial}([repmat(data.ff.FD(trial*2,:),1,1)],:)
+            else
+                for i = 1:3
+                    if temp(i) ==  0
+                        rpos(i,:) = data.R_toe{trial}([repmat(data.ff.FD(trial*2,i),1,1)],:);
+                    end
+                end
+            end
+            stdin(trial) = sqrt(sum(diff(rpos(1:2,1:3))).^2);
+            stdout(trial) = sqrt(sum(diff(rpos(2:3,1:3))).^2);
+            oppos (trial) = sqrt(sum(diff(lpos(:,1:3))).^2);
+            clear lpos rpos temp
+    
+    else 
+        temp = isnan(data.ff.FD(trial*2-1,:));
+        if sum(isnan(data.ff.FD(trial*2,:)))== 0
+            rpos= data.R_toe{trial}([data.ff.FD(trial*2,3) data.ff.FD(trial*2,2)],:);
+        elseif sum(isnan(data.ff.FD(trial*2,:)))==3 | sum(isnan(data.ff.FD(trial*2,:)))==4
+            rpos=nan(2,3);
+        else       
+            %think about how this might get fucked up
+            rpos= data.R_toe{trial}([min(data.ff.FD(trial*2,:)) max(data.ff.FD(trial*2,:))],:);
+        end
+        
+        lpos = nan(3,3);
+        if sum(temp) == 0
+            lpos = data.L_toe{trial}([repmat(data.ff.FD(trial*2-1,:),1,1)],:)
+        else
+            for i = 1:3
+                if temp(i)== 0 & isempty(data.L_toe{trial}) ==  0
+                    lpos(i,:) = data.L_toe{trial}([repmat(data.ff.FD(trial*2-1,i),1,1)],:);
+                end
+            end
+        end
+        
+    stdin(trial) = sqrt(sum(diff(lpos(1:2,1:3))).^2);
+    stdout(trial) = sqrt(sum(diff(lpos(2:3,1:3))).^2);
+    oppos (trial) = sqrt(sum(diff(rpos(:,1:3))).^2);
+    clear lpos rpos temp
+        
+    end
+        end
+    end
 %     % duty factor Pull FD and FO
 % FD = data.ff.FD(trial*2-1:trial*2,:);
 % FO = data.ff.FO(trial*2-1:trial*2,:);
-% end
+
 %% Change in KE PE
-% Delt = nan(length(data.forcefname),5);
-% for i = 1: length(data.forcefname)
-%      deltKE = data.KE{i}(end,1:3)-data.KE{i}(1,1:3);
-%      deltPE = data.PE{i}(end,1) - data.PE{i}(1,1);
-%      Etot        =   sum([data.KE{i}(:,1:3),data.PE{i}],2);
-%      deltEtot = Etot(end,1)-Etot(1,1);
-%      Delt(i,1:3) = deltKE;
-%      Delt(i,4) = deltPE;
-%      Delt(i,5) = deltEtot;
+ Delt = nan(length(data.forcefname),5);
+ for i = 1: length(data.forcefname)
+    if strcmp(data.ff.kinematic(i*2),'Yes')
+     deltKE = data.KE{i}(end,1:3)-data.KE{i}(1,1:3);
+     deltPE = data.PE{i}(end,1) - data.PE{i}(1,1);
+     Etot        =   sum([data.KE{i}(:,1:3),data.PE{i}],2);
+     deltEtot = Etot(end,1)-Etot(1,1);
+     Delt(i,1:3) = deltKE;
+     Delt(i,4) = deltPE;
+     Delt(i,5) = deltEtot;
+    end
+    end
 %      clear delt*
 % end
 
@@ -236,10 +241,10 @@ numtrials = length(data.forcefname);
     things(2:i,24) = num2cell(lslen);
     things(2:i,25) = num2cell(rslen);
     things(2:i,26) =num2cell(comlen');
-%     things(2:i,27) = num2cell(stdin');
-%     things(2:i,28) = num2cell(stdout');
-%     things(2:i,29) = num2cell(oppos');
-%     things(2:i,30:34) = num2cell(Delt);
+    things(2:i,27) = num2cell(stdin');
+    things(2:i,28) = num2cell(stdout');
+    things(2:i,29) = num2cell(oppos');
+    things(2:i,30:34) = num2cell(Delt);
     things(2:i,35) = data.ff.kinematic(1:2:end,1);
 data.forcepeak = ForcePeak;
 data.avgtstdlen =  avgtslen;
@@ -247,7 +252,7 @@ data.tdangliz =tdang;
 data.fimpxzang = xzang;
 data.fimpyzang = yzang;
 
-path = 'C:\Users\Liz\Desktop\DataLarge'    
+path = 'C:\Users\Liz\Desktop\DataLarge'  ;  
 clear ForcePeak i *len *trial* *ang titles   avg* *ang std* oppos
 cd(path)
 % xlswrite('Data_Variables.xlsx',things);
