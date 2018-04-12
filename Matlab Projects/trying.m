@@ -1,4 +1,4 @@
-numtrials = length(data.forcefname);
+lonumtrials = length(data.forcefname);
 % % % for i=1:numtrials
 % % %    figure('NumberTitle','off','Name',data.ff.ufnames{i});
 % % %    plotUglyFF(data.ff.FD((i*2-1):(i*2),:),data.ff.FO((i*2-1):(i*2),:))

@@ -71,13 +71,15 @@ for i = 1:numtrials
     else
             FD = data.ff.forcestep(i*2,1);
             foot = data.ff.forcefoot(i*2);
-        if strcmp(foot,'L')
-            temphip = data.L_hip{i}(FD,:);
-            temptoe = data.L_toe{i}(FD,:);
-        else
-            temphip = data.R_hip{i}(FD,:);
-            temptoe = data.R_toe{i}(FD,:);
-        end
+            if ~isnan(FD)
+            if strcmp(foot,'L')
+                temphip = data.L_hip{i}(FD,:);
+                temptoe = data.L_toe{i}(FD,:);
+            else
+                temphip = data.R_hip{i}(FD,:);
+                temptoe = data.R_toe{i}(FD,:);
+            end
+            
          bodyanglepitch= data.LowerBackskb{i}(FD,1);
          tdangxz = Angle2Horiz([temphip(1),0,temphip(3)],[temptoe(1),0,temptoe(3)]);
          tdangyz= Angle2Horiz([0,temphip(2),temphip(3)],[0,temptoe(2),temptoe(3)]);
@@ -111,7 +113,7 @@ for i = 1:numtrials
                figure(f9)
                 hold on
                  plot(tdangxyz,bodyangleroll,'ro');
-       
+            end
     end
     clear temp* FD FO foot td* 
 end

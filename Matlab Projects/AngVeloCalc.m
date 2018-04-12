@@ -1,5 +1,6 @@
 %prep work for linear measurements
 numtrials = length(data.forcefname);
+fps = 500
 %%
 for i = 1:numtrials
     if isempty(data.Back_anterior{i})~= 1 
@@ -37,7 +38,7 @@ for i = 1:numtrials
     L_vecthip = L_knee - L_hip;
     
 %Start Calculating Degrees and AngVelo of those parts
-t= (0:length(L_ankle)-1)/data.fps;
+t= (0:length(L_ankle)-1)/fps;
 [degLknee,radLknee]= calc2vectorAngle(L_hipvectknee,L_anklevectknee);
 [degRknee,radRknee]= calc2vectorAngle(R_hipvectknee,R_anklevectknee);
 [degLankle,radLankle]= calc2vectorAngle(L_kneevectankle,L_footvectankle);

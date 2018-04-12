@@ -104,22 +104,24 @@ for trial = 1:numtrials
     clear R* L*
 end
 %% Proof for tonia
-for trial = 1:21
-figure('NumberTitle','off','Name',data.ff.ufnames{trial});
-    subplot(4,1,1);
-    plot(data.KE{trial}(:,4),'r'); ylabel('Total Kinetic Energy (J)');
-    hold on
-    subplot(4,1,2);
-    plot(data.PE{trial},'g'); ylabel('Potential Energy (J)');
-    subplot(4,1,3);
-    plot(data.CM{trial});
-    legend('X', 'Y', 'Z');
-    subplot(4,1,4);
-    plot((1:length(data.dCM{trial,1}(:,1)))/500,data.dCM{trial,1}(:,1)); ylabel('Velocity in X Direction(mm/s)');
-   
+for trial = 1:numtrials
+    if strcmp(data.ff.kinematic(trial*2),'Yes')
+        figure('NumberTitle','off','Name',data.ff.ufnames{trial});
+        subplot(4,1,1);
+        plot(data.KE{trial}(:,4),'r'); ylabel('Total Kinetic Energy (J)');
+        hold on
+        subplot(4,1,2);
+        plot(data.PE{trial},'g'); ylabel('Potential Energy (J)');
+        subplot(4,1,3);
+        plot(data.CM{trial});
+        legend('X', 'Y', 'Z');
+        subplot(4,1,4);
+        plot((1:length(data.dCM{trial,1}(:,1)))/500,data.dCM{trial,1}(:,1)); ylabel('Velocity in X Direction(mm/s)');
+    end
 end
 %%
 for i = 1:numtrials
+    if strcmp(data.ff.kinematic(i*2),'Yes')
 KE = data.KE{i}(:,1:3);
 PE = data.PE{i};
 Ecom= data.Ecom{i};
@@ -146,7 +148,7 @@ subplot(4,1,3)
     
 subplot(4,1,4)
     plot(data.Ecom{i}); title('Ecom');
-     
+    end  
 clear E* *E
 
 end
@@ -192,69 +194,70 @@ end
 %% work Loops Force on the Y and delta L on the x. length should eventually
 % %be the difference between the com and the toe
 for trial = 1:numtrials
-    FD = data.ff.forcestep(trial*2,1);
-    FO = data.ff.forcestep(trial*2,2);
-    FFFD= FD * 10;
-    FFFO= FO * 10;
-    %com is in m  pos data seems to be in cm
-    com = data.CM{trial,1}(FD:FO,3);
-    normcom= com-com(1,1);
-    if strcmp(data.ff.forcefoot(trial*2),'R')== 1;
-        toe = data.R_toe{trial}(FD:FO,3);
-           hipr= data.R_hip{trial}(FD:FO,3);
-    else
-        toe = data.L_toe{trial}(FD:FO,3);
-          hipr= data.L_hip{trial}(FD:FO,3);
+    if strcmp(data.ff.kinematic(i*2),'Yes')
+        FD = data.ff.forcestep(trial*2,1);
+        FO = data.ff.forcestep(trial*2,2);
+        FFFD= FD * 10;
+        FFFO= FO * 10;
+        %com is in m  pos data seems to be in cm
+        com = data.CM{trial,1}(FD:FO,3);
+        normcom= com-com(1,1);
+        if strcmp(data.ff.forcefoot(trial*2),'R')== 1;
+            toe = data.R_toe{trial}(FD:FO,3);
+               hipr= data.R_hip{trial}(FD:FO,3);
+        else
+            toe = data.L_toe{trial}(FD:FO,3);
+              hipr= data.L_hip{trial}(FD:FO,3);
+        end
+        hip = data.Back_posterior{trial}(FD:FO,3);
+        toem = toe/100;
+        pos = com-toem;
+        hipdif= hip-toe;
+        f = data.rotF{trial}(FFFD:10:FFFO,3);
+        y= 'Force (N)';
+        x='delta length(m)';
+
+        figure('NumberTitle','off','Name',data.ff.ufnames{trial});
+            subplot(5,1,1)
+                plot(pos,f);
+                if strcmp(data.ff.treat(trial*2,1),'Drop')
+                    title('Z Direction Work Loop Leg Stiffness DROP');
+                else
+                     title('Z Direction Work Loop Leg Stiffness Level');
+                end
+                xlabel(x);
+                ylabel(y);
+           subplot(5,1,2)
+                plot(hipdif,f);
+                if strcmp(data.ff.treat(trial*2,1),'Drop')
+                    title('Z Direction Work Loop hip to toe DROP');
+                else
+                    title('Z Direction Work Loop hip to toe Level');
+                end
+                 xlabel(x);
+                 ylabel(y);
+
+            subplot(5,1,3)
+                plot(normcom,f);
+                if strcmp(data.ff.treat(trial*2,1),'Drop')
+                    title('Z Direction Work Loop COM Height DROP');
+                else
+                    title('Z Direction Work Loop COM Height Level');
+                end
+                 xlabel(x);
+                 ylabel(y);
+
+           subplot(5,1,4)
+             plot(f);
+             title('Force Trace');
+             xlabel('Frames');
+             ylabel(y);
+           subplot(5,1,5)
+             plot(com);
+             title('Com Position');
+             xlabel('Frames');
+             ylabel('m');
+
+        clear pos F* f toe trial com
     end
-    hip = data.Back_posterior{trial}(FD:FO,3);
-    toem = toe/100;
-    pos = com-toem;
-    hipdif= hip-toe;
-    f = data.rotF{trial}(FFFD:10:FFFO,3);
-    y= 'Force (N)';
-    x='delta length(m)';
-
-    figure('NumberTitle','off','Name',data.ff.ufnames{trial});
-        subplot(5,1,1)
-            plot(pos,f);
-            if strcmp(data.ff.treat(trial*2,1),'Drop')
-                title('Z Direction Work Loop Leg Stiffness DROP');
-            else
-                 title('Z Direction Work Loop Leg Stiffness Level');
-            end
-            xlabel(x);
-            ylabel(y);
-       subplot(5,1,2)
-            plot(hipdif,f);
-            if strcmp(data.ff.treat(trial*2,1),'Drop')
-                title('Z Direction Work Loop hip to toe DROP');
-            else
-                title('Z Direction Work Loop hip to toe Level');
-            end
-             xlabel(x);
-             ylabel(y);
-            
-        subplot(5,1,3)
-            plot(normcom,f);
-            if strcmp(data.ff.treat(trial*2,1),'Drop')
-                title('Z Direction Work Loop COM Height DROP');
-            else
-                title('Z Direction Work Loop COM Height Level');
-            end
-             xlabel(x);
-             ylabel(y);
-         
-       subplot(5,1,4)
-         plot(f);
-         title('Force Trace');
-         xlabel('Frames');
-         ylabel(y);
-       subplot(5,1,5)
-         plot(com);
-         title('Com Position');
-         xlabel('Frames');
-         ylabel('m');
-
-    clear pos F* f toe trial com
-    
 end
