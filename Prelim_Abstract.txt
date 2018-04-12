@@ -1,3 +1,0 @@
-Abstract:
-
-	Navigation in the natural world is difficult because the terrain is full of obstacles and surface properties of the ground.  These challenges for locomotors may be a constant for a particular environment, such as the potential for fulidization of granular media for desert runners, or an occasional but extreme challenge, such as dips and valleys in hard terrain.  Essential for all conditions is the maintenance of stability and successful navigation of variable terrain.  Failure to maintain stability could mean succumbing to predation, failure to catch prey, or even injury.
