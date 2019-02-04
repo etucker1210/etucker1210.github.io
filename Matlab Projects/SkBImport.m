@@ -1,3 +1,4 @@
+function data = SkBImport(data)
 %This will import Lower Back and Upper Back angle data.  These files are
 %Hrt files.  The First 54 Rows are info.  For the Lower back we need to
 %specify that the first 54 rows are headers for the upper back this number
@@ -30,10 +31,10 @@ if exist('/Users/ElizabethTucker/Desktop/Liz Basilisk Data') == 7    % laptop
     ffpath                  =   '/Users/ElizabethTucker/Desktop/Liz Basilisk Data/';
     newdir                  =   '/Users/ElizabethTucker/Desktop/Liz Basilisk Data/Data';
     
-elseif exist('C:\Users\Liz\Desktop\DataLarge') == 7    % laptop
-    ffname                  =   'FootFallData'; %'BasiliskFootfalls.xlsx';
-    ffpath                  =   'C:\Users\Liz\Desktop\DataLarge';
-    newdir                  =   'C:\Users\Liz\Desktop\DataLarge';
+% elseif exist('C:\Users\Liz\Desktop\DataLarge') == 7    % laptop
+%     ffname                  =   'FootFallData'; %'BasiliskFootfalls.xlsx';
+%     ffpath                  =   'C:\Users\Liz\Desktop\DataLarge';
+%     newdir                  =   'C:\Users\Liz\Desktop\DataLarge';
 else
     [ffname,ffpath,fidx]        =   uigetfile('*.xlsx','Select Footfall File');
     newdir                      =   uigetdir('','Select the Directory Containing Data Folders'); 
@@ -61,6 +62,8 @@ clear num txt raw
 for i = 1:numTrials
     fprintf('%d,',i)
     fname               =   datafiles{i};
+    cd(ffpath)
+    cd(['./' ff.datafolder{i}]);
     if isempty(strfind(fname,'.'))      % confirms that file extension not included
         skbfname       =   [fname '.htr.xlsx'];
     end
@@ -68,8 +71,7 @@ for i = 1:numTrials
     data.skbfname{i} = skbfname;
 
     % change directory to the appropriate folder
-    cd(newdir);
-    cd(['./' ff.datafolder{i}]);
+    
     
     % Import Angle Data
     %   numerical data import and assign to TEMP2
@@ -111,7 +113,7 @@ end
 clear Fs heads max* n* f* s*  curdir ans varnames
 data.LowerBackskb =LowerBack;
 data.LHipskb = LHip;
-data.LUpperLegskb = LUpperLeg
+data.LUpperLegskb = LUpperLeg;
 data.LLowerLegskb = LLowerLeg;
 data.LFootskb = LFoot;
 data.RHipskb = RHip;

@@ -1,8 +1,10 @@
+function things = Variables(data)
 titles = {'file name', 'mass (g)','Treatment', 'Utot', 'Utot stdev', 'mean duty factor',...
     'stride frequency', 'stride length (l) trial avg', 'stride length (R) trial avg','average toe stride length', ...
     'Max Fx (N)', 'Max Fy (N)','Max Fz (N)','Force Impulse X','Force Impulse Y', 'Force Impulse Z', 'Total force impulse',...
     'Xzang Imp','Yzang Imp','Svl (mm)', 'TDAng XZ','TDAng YZ','TDAng total','Stride Length  toe(L)', 'Stride Length toe(R)','COM Stride Length', ...
-    'Stride in','Stride Out', 'Opposite', 'DeltKEx','DeltKEy','DeltKEz','DeltPE','DeltEcom', 'Kinematic'};
+    'Stride in','Stride Out', 'Opposite', 'DeltKEx','DeltKEy','DeltKEz','DeltPE','DeltEcom', 'Kinematic', ...
+    'Lower Back Ang', 'ID'};
 
 numtrials = length(data.forcefname);
 
@@ -171,10 +173,9 @@ oppos = NaN(numtrials,1);
         temp = isnan(data.ff.FD(trial*2-1,:));
         if sum(isnan(data.ff.FD(trial*2,:)))== 0
             rpos= data.R_toe{trial}([data.ff.FD(trial*2,3) data.ff.FD(trial*2,2)],:);
-        elseif sum(isnan(data.ff.FD(trial*2,:)))==3 | sum(isnan(data.ff.FD(trial*2,:)))==4
+        elseif sum(isnan(data.ff.FD(trial*2,:)))>=3
             rpos=nan(2,3);
         else       
-            %think about how this might get fucked up
             rpos= data.R_toe{trial}([min(data.ff.FD(trial*2,:)) max(data.ff.FD(trial*2,:))],:);
         end
         
@@ -216,10 +217,27 @@ oppos = NaN(numtrials,1);
     end
 %      clear delt*
 % end
+%% calculation of Average body position (pitch,yaw and roll) for level
+% and at drop td for Drops
+lowerbackpitch= nan(64,1);
+for i = 1: numtrials
+    if strcmp(data.ff.treat(i*2),'Flat')
+        FD = data.ff.FD(i*2-1:i*2,:);
+        pitch=data.LowerBackskb{i}(FD(~isnan(FD)),1);
+        lowerbackpitch(i) = nanmean(pitch);
+    else
+        FD = data.ff.dropstep(i*2,1);
+        if ~isnan(FD)
+            lowerbackpitch(i) = data.LowerBackskb{i}(FD,1);
+        else 
+            lowerbackpitch(i) = NaN;
+        end
+    end
+end
+data.lowerbackpitchavg = lowerbackpitch;
+%%
 
-
-    i = length(data.forcefname)+1;
-    
+ i = length(data.forcefname)+1;
     things = titles;
     things (2:i,1) = data.forcefname';
     things (2:i,2) = data.ff.raw(2:2:end,3);
@@ -246,6 +264,8 @@ oppos = NaN(numtrials,1);
     things(2:i,29) = num2cell(oppos');
     things(2:i,30:34) = num2cell(Delt);
     things(2:i,35) = data.ff.kinematic(1:2:end,1);
+    things(2:i,36) = num2cell(lowerbackpitch);
+    things(2:i,37) = data.ff.ID(1:2:end);
 data.forcepeak = ForcePeak;
 data.avgtstdlen =  avgtslen;
 data.tdangliz =tdang;
@@ -253,6 +273,5 @@ data.fimpxzang = xzang;
 data.fimpyzang = yzang;
 
 path = 'C:\Users\Liz\Desktop\DataLarge'  ;  
-clear ForcePeak i *len *trial* *ang titles   avg* *ang std* oppos
 cd(path)
-% xlswrite('Data_Variables.xlsx',things);
+xlswrite('Data_Variables.xls',things);

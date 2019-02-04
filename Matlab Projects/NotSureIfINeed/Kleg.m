@@ -5,6 +5,7 @@ numtrials = length(data.forcefname);
 %First calculate the different leg legnth/ Com positions
 
 for  i = 1:numtrials
+    if strcmp(data.ff.kinematic(i*2,1),'Yes')
     FD = data.ff.forcestep(i*2,1);
     FO = data.ff.forcestep(i*2,2);
     if strcmp(data.ff.forcefoot(i*2),'L')
@@ -27,6 +28,7 @@ for  i = 1:numtrials
         Lo(2,:) = data.R_toe{i}(FD,:);
         Lm = data.R_hip{i}(mid,:);
         Lm(2,:) = data.R_toe{i}(mid,:);
+    end
     end
     Fmid = sqrt(sum(data.rotF{i}(mid,1:3).^2));
     Ffd = sqrt(sum(data.rotF{i}(FD,1:3).^2));

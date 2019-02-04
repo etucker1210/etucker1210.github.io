@@ -14,7 +14,7 @@ curdir      =   cd;     % current directory
 % files
 maxPts      =   150;    
 fps         =   500;
-Fs          =   fps*10;
+Fs          =   500*10;
 
 %% Import data
 % import footfall data, which will be used to determine which files to use
@@ -46,7 +46,7 @@ end
 cd(ffpath);
 [num,txt,raw]   =   xlsread(ffname);
 
-ff.raw          =   raw(:,1:18);
+ff.raw          =   raw;
 ff.allfnames   	=   txt(2:end,1);
 ff.datafolder   =   txt(2:end,2);
 ff.ID           =   cell(size(ff.allfnames));   % empty ID matrix
@@ -57,9 +57,11 @@ ff.svl          =   num(:,4);
 ff.fffoot       =   txt(2:end,7);
 ff.forcefoot    =   txt(2:end,8);
 ff.forcestep    =   num(:,7:8);
-ff.FD           =   num(:,9:2:end);
-ff.FO           =   num(:,10:2:end);
+ff.FD           =   num(:,9:2:17);
+ff.FO           =   num(:,10:2:17);
 ff.numStr       =   nan(length(ff.allfnames),1);
+ff.dropfoot     =   txt(2:end,19);
+ff.dropstep     =   num(:,18:19);
 
 % fill in ff.ID and ff.numStr
 startID         =   cell2mat(strfind(ff.allfnames,'Bas'));
@@ -247,9 +249,10 @@ for i = 1:length(datafiles)
             % Rotatfe FORCES ONLY in FTz around Z-axis the same amount as
             % kinematic data, then FILTER
             rotF(:,1:3)     =   ZAxisRotAngle(data.FTz{i}(:,1:3),-theta(i));
-            for c = 1:6
-                rotF(:,c)   =   lopass_butterworth(rotF(:,c),60,Fs,4);
-            end
+            unfilt = rotF(:,1:3);
+             for c = 1:6
+                 rotF(:,c)   =   lopass_butterworth(rotF(:,c),60,Fs,4);
+             end
             % ROTF NOW CONTAINS ROTATED AND FILTERED DATA!!!!
                         
             clear colnum j temp2 varLoc;
@@ -278,6 +281,7 @@ for i = 1:length(datafiles)
     end
     
     data.rotF{i}    =   rotF;
+    data.rotFunfilt{i} = unfilt;
     data.rotXYZ{i}  =   temp;
     
     clear colnum rotF temp* v varLoc;
@@ -780,7 +784,7 @@ if strcmp('Yes',data.ff.kinematic(trial*2,1))
     Fz              =   data.rotF{trial}((forcestep(1)+round(diff(forcestep)/3))*Fs/fps:forcestep(2)*Fs/fps,3);
     dFz             =   max(-Fz);
     %   (4) Calculate kvert
-    kvert(trial)    =   dFz/dzCM;
+     kvert(trial)    =   dFz/dzCM;
     
     % Limb stiffness: kleg = F/zleg, for which zleg is the difference in
     % hip height between mid-stance and initial leg length at touchdown
